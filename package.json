@@ -1,0 +1,24 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "![License](https://img.shields.io/badge/License-MIT-green.svg)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amiedawn/employee-tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amiedawn/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/amiedawn/employee-tracker#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
