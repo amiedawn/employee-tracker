@@ -1,5 +1,5 @@
 //const express = require('express');
-const { prompt } = require("inquirer");
+const inquirer = require("inquirer");
 
 // create the connection to database
 const mysql = require ('mysql2');
@@ -26,104 +26,116 @@ connection.connect(err => {
 //     connection.end();
 //   })
   
+//************************* */
+// DATABASE QUERY FUNCTIONS
+//************************* */
 
-// instantiate the server
-//const app = express();
+// view all employees
+async function viewAllEmps() {
+  let query = 'SELECT * FROM employee';
+  const rows = await mysql.query(query);
+  console.table(rows);
+}
 
-
-
-
-
+//************************* */
+// PROMPT FUNCTIONS
+//************************* */
 
 async function showPrompts() {
-  const { choice } = await prompt ([
+  return inquirer.prompt([
     {
       type: "list",
       name: "choice",
-      message: "Choose the task you want to do.",
+      message: "Please choose the task you want to do: ",
       choices: [
         {
           name: "View all employees",
-          value: "VIEW_EMPLOYEES"
+          value: "VIEW_ALL_EMPS",
         },
         {
           name: "View all departments",
-          value: "VIEW_DEPARTMENTS"
+          value: "VIEW_ALL_DEPTS",
         },
         {
           name: "View all roles",
-          value: "VIEW_ROLES"
+          value: "VIEW_ROLES",
         },
         {
           name: "Add an employee",
-          value: "ADD_EMPLOYEE"
+          value: "ADD_EMP",
         },
         {
           name: "Add a department",
-          value: "ADD_DEPARTMENT"
+          value: "ADD_DEPT",
         },
         {
           name: "Add a role",
-          value: "ADD_ROLE"
+          value: "ADD_ROLE",
         },
         {
           name: "Update employee role",
-          value: "UPDATE_ROLE"
+          value: "UPDT_ROLE",
         },
         {
           name: "Quit",
-          value: "QUIT"
+          value: "QUIT",
         },
-      ]
-    }
+      ],
+    },
   ]);
-  switch (choice) {
-    case "VIEW_EMPLOYEES":
-      return viewEmployees();
-    case "VIEW_DEPARTMENTS":
-      return viewDepartments();
-    case "VIEW_ROLES":
-      return viewRoles();
-    case "ADD_EMPLOYEE":
-      return addEmployee();
-    case "ADD_DEPARTMENT":
-      return addDepartment();
-    case "ADD_ROLE":
-      return addRole();
-    case "UPDATE_ROLE":
-      return updateRole();
-    default:
-      return quit();  
+
+async function mainChoices() {
+  let quitLoop = false;
+  while (!quitLoop) {
+    const prompt = await showPrompts();
+
+    switch (prompt.choice) {
+      case "VIEW_ALL_EMPS": {
+        await viewAllEmps();
+        break;
+      }
+      case "VIEW_ALL_DEPTS": {
+        await viewAllDepts();
+        break;
+      }  
+      case "VIEW_ROLES": {
+        await viewAllRoles();
+        break;
+      }  
+      case "ADD_EMP": {
+        const newEmp = await getAddEmpData();
+        console.log('Add a new employee', newEmp);
+        await addEmpData(newEmp);
+        break;
+      }  
+      case "ADD_DEPT": {
+        const newDept = await getAddDeptData();
+        console.log('Add a new department', newDept);
+        await addDeptData(newDept);
+        break;
+      }  
+      case "ADD_ROLE": {
+        const newRole = await getAddRoleData();
+        console.log('Add a new role', newRole);
+        await addRoleData(newRole);
+        break;
+      }  
+      case "UPDT_ROLE": {
+        const emp = await getUpdtRoleData();
+        await updtRoleData(emp);
+        break;
+      }  
+      case "QUIT": {
+        quitLoop = true;
+        // 0 is successful exit
+        process.exit(0);
+        return;
+      }  
+      default:
+        console.log('Please choose a valid option');
+    }  
   }
-
-  // async function viewEmployees() {
-  //   const employees = await
-  // }
-
 }
-
-// // simple query
-// connection.query(
-//   'SELECT * FROM `table` WHERE `name` = "Page" AND `age` > 45',
-//   function (err, results, fields) {
-//     console.log(results); // results contains rows returned by server
-//     console.log(fields); // fields contains extra meta data about results, if available
-//   }
-// );
-
-// // with placeholder
-// connection.query(
-//   "SELECT * FROM `table` WHERE `name` = ? AND `age` > ?",
-//   ["Page", 45],
-//   function (err, results) {
-//     console.log(results);
-//   }
-// );
-//********** end mysql2 code in first query
-
-// // make server listen to express.js server
-// app.listen(3001, () => {
-//   console.log('API server now on port 3001');
-// });
+}
 
 showPrompts();
