@@ -7,7 +7,7 @@ VALUES
 ('Purchasing'),
 ('Production');
 
-INSERT INTO role (title, salary, department_id)
+INSERT INTO empRole (title, salary, department_id)
 VALUES 
 ('Manager', 40000, 1),
 ('Associate', 30000, 1),
