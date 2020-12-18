@@ -1,20 +1,39 @@
-const express = require('express');
+//const express = require('express');
 const { prompt } = require("inquirer");
 
-// instantiate the server
-const app = express();
-
-
-//**************start mysql2 code in first query
-// get the client
-const mysql = require("mysql2");
-
 // create the connection to database
+const mysql = require ('mysql2');
+
 const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  database: "test",
+  host: 'localhost',
+  port: 3306,
+  user: 'root',
+  password: 'root',
+  database: 'employee_db',
 });
+
+connection.connect(err => {
+  if (err) throw err;
+  console.log('connected as id ' + connection.threadId);
+  //afterConnection();
+});
+
+// afterConnection = () => {
+//   connection.query("SELECT * FROM departments", (err, result, fields) => {
+//     console.log('err', err);
+//     console.log("result", result);
+//     console.log("fields", fields);
+//     connection.end();
+//   })
+  
+
+// instantiate the server
+//const app = express();
+
+
+
+
+
 
 async function showPrompts() {
   const { choice } = await prompt ([
@@ -77,7 +96,9 @@ async function showPrompts() {
       return quit();  
   }
 
-  
+  // async function viewEmployees() {
+  //   const employees = await
+  // }
 
 }
 
@@ -100,7 +121,9 @@ async function showPrompts() {
 // );
 //********** end mysql2 code in first query
 
-// make server listen to express.js server
-app.listen(3001, () => {
-  console.log('API server now on port 3001');
-});
+// // make server listen to express.js server
+// app.listen(3001, () => {
+//   console.log('API server now on port 3001');
+// });
+
+showPrompts();
