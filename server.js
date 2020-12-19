@@ -1,4 +1,8 @@
+// terminal prompts
 const inquirer = require("inquirer");
+
+// format query tables so they don't have index column and are not strings
+const cTable = require("console.table");
 
 // create the connection to database
 const mysql = require("mysql2");
@@ -6,6 +10,7 @@ const mysql = require("mysql2");
 // define Database class
 let Database = require('./db/database.js');
 
+// connect to database
 const dbase = new Database({
   host: "localhost",
   port: 3306,
@@ -37,27 +42,41 @@ async function viewAllEmps() {
 // DEPARTMENT QUERY FUNCTIONS
 //************************* */
 
-// view all employees
-// async function viewAllDepts() {
-//   console.log("in view all depts table");
-//   console.log("");
-
-//   let query = "SELECT id AS ID, name AS Department FROM department";
-//   console.log("in dept table");
-//   const rows = await dbase.query(query);
-//   console.table(rows);
-// }
-
 async function viewAllDepts() {
   console.log("in view all depts table");
   console.log("");
 
-  await dbase.query('SELECT id AS ID, name AS Department FROM department', (err, res) => {
-    if (err) throw err;
-      console.log("in dept table2");
-      console.table(res);
-      mainChoices();
-  })
+  let query = "SELECT id AS ID, name AS Department FROM department";
+  console.log("in dept table3");
+  const rows = await dbase.query(query);
+  console.table(rows);
+};
+
+// async function viewAllDepts() {
+//   console.log("in view all depts table");
+//   console.log("");
+
+//   await dbase.query('SELECT id AS ID, name AS Department FROM department', (err, res) => {
+//     if (err) throw err;
+//       console.log("in dept table2");
+//       console.table(res);
+//       mainChoices();
+//   })
+// };
+
+//************************* */
+// EMPROLE QUERY FUNCTIONS
+//************************* */
+
+async function viewAllRoles() {
+  console.log("in view all roles table");
+  console.log("");
+
+  let query =
+    "SELECT empRole.id, empRole.title, empRole.salary, name AS department FROM empRole LEFT JOIN department ON department_id = department.id";
+  console.log("in role table");
+  const rows = await dbase.query(query);
+  console.table(rows);
 };
 
 //************************* */

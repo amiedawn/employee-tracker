@@ -1,5 +1,3 @@
-//const connection = require ("./connection");
-
 // create the connection to database
 const mysql = require("mysql2");
 
