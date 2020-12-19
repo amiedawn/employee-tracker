@@ -72,8 +72,7 @@ async function viewAllRoles() {
   console.log("in view all roles table");
   console.log("");
 
-  let query =
-    "SELECT empRole.id, empRole.title, empRole.salary, name AS department FROM empRole LEFT JOIN department ON department_id = department.id";
+  let query = 'SELECT empRole.id, empRole.title, department.name AS department, empRole.salary FROM empRole LEFT JOIN department on empRole.department_id = department.id';
   console.log("in role table");
   const rows = await dbase.query(query);
   console.table(rows);
