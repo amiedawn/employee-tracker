@@ -30,7 +30,8 @@ async function viewAllEmps() {
   console.log("");
 
   //***/ add in manager that the emp reports to
-  let query = "SELECT employee.id, employee.first_name, employee.last_name, empRole.title, department.name AS department, empRole.salary FROM employee LEFT JOIN empRole ON employee.role_id = empRole.id LEFT JOIN department on empRole.department_id = department.id"
+  //let query = "SELECT employee.id AS ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, empRole.title AS Title, department.name AS Department, empRole.salary AS Salary FROM employee CONCAT(m.first_name, ' ', m.last_name) AS Manager FROM employee LEFT JOIN employee manager ON employee.manager_id = manager.id INNER JOIN empRole ON employee.role_id = empRole.id INNER JOIN department ON empRole.department_id = department.id";
+  let query = "SELECT employee.id, employee.first_name, employee.last_name, empRole.title, department.name AS department, empRole.salary AS salary, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee INNER JOIN empRole on empRole.id = employee.role_id INNER JOIN department on department.id = empRole.department_id LEFT JOIN employee e on employee.manager_id = e.id";
   console.log("in employee table");
   const rows = await dbase.query(query);
   console.table(rows);
