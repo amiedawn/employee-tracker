@@ -29,14 +29,44 @@ async function viewAllEmps() {
   console.log("in employee table");
   const rows = await dbase.query(query);
   console.table(rows);
-}
+};
+
+
+
+//************************* */
+// DEPARTMENT QUERY FUNCTIONS
+//************************* */
+
+// view all employees
+// async function viewAllDepts() {
+//   console.log("in view all depts table");
+//   console.log("");
+
+//   let query = "SELECT id AS ID, name AS Department FROM department";
+//   console.log("in dept table");
+//   const rows = await dbase.query(query);
+//   console.table(rows);
+// }
+
+async function viewAllDepts() {
+  console.log("in view all depts table");
+  console.log("");
+
+  await dbase.query('SELECT id AS ID, name AS Department FROM department', (err, res) => {
+    if (err) throw err;
+      console.log("in dept table2");
+      console.table(res);
+      mainChoices();
+  })
+};
 
 //************************* */
 // PROMPT FUNCTIONS
 //************************* */
 
 async function showPrompts() {
-  return inquirer.prompt([
+  return inquirer
+    .prompt([
     {
       type: "list",
       name: "choice",
@@ -49,7 +79,7 @@ async function showPrompts() {
         "Add a department",
         "Add a role",
         "Update role",
-        "Quit",
+        "Quit"
       ],
     },
   ]);
