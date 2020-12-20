@@ -67,27 +67,36 @@ async function getAddDeptData() {
     ])
 };
   
+// add a new department to the table
 async function addDept(deptInfo) {
   const deptName = deptInfo.deptName;
   let query = "INSERT INTO department (name) VALUES (?)";
   let args = [deptName];
   const rows = await dbase.query(query, args);
   console.log(`${deptName} is successfully added as a department.`);
-    //  mainChoices();
 };
 
+// get current list of dept names for when adding a new role
+async function pullDeptNames() {
+  let query = "SELECT name FROM department";
+  const rows = await dbase.query(query);
+  console.log("number of rows returned: ", rows.length);
+  
+  let departments = [];
+  // loop to add new department name
+  for (i = 0; i < query.length; i++) {
+    departments.push(query.name);
+  }
+  return departments;
+};
 
-// async function viewAllDepts() {
-//   console.log("in view all depts table");
-//   console.log("");
-
-//   await dbase.query('SELECT id AS ID, name AS Department FROM department', (err, res) => {
-//     if (err) throw err;
-//       console.log("in dept table2");
-//       console.table(res);
-//       mainChoices();
-//   })
-// };
+// convert department name to department_id
+async function convertDeptId(deptName) {
+  let query = "SELECT * FROM department WHERE department.name=?";
+  let args = [deptName];
+  const rows = await dbase.query(query, args);
+  return rows[0].id;
+};
 
 //************************* */
 // EMPROLE QUERY FUNCTIONS
@@ -104,6 +113,44 @@ async function viewAllRoles() {
   console.table(rows);
 };
 
+// get new role name, salary, and dept for adding
+// department choices will autofill from pullDeptNames function
+async function getAddRoleData() {
+  console.log("in add role table");
+  const departments = await pullDeptNames();
+  return inquirer
+    .prompt([
+      {
+        name: "roleName",
+        type: "input",
+        message: "Please enter the name of the role you would like to add: ",
+      },
+      {
+        name: "roleSalary",
+        type: "input",
+        message: "Please enter the salary for the role you would like to add: ",
+      },
+      {
+        name: "roleDept",
+        type: "list",
+        message: "Please choose a department who uses this role: ",
+        choices: [
+          ...departments
+        ]
+      }
+    ])
+};
+  
+async function addRole(roleInfo) {
+  const deptId = await convertDeptId(roleInfo.roleDept);
+  const salary = roleInfo.roleSalary;
+  const title = roleInfo.roleName;
+  let query = "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)";
+  let args = [title, salary, deptId];
+  const rows = await dbase.query(query, args);
+  console.log(`${title} is successfully added as a department.`);
+};
+
 //************************* */
 // PROMPT FUNCTIONS
 //************************* */
@@ -117,15 +164,15 @@ async function showPrompts() {
       name: "choice",
       message: "Please choose the task you want to do: ",
       choices: [
-        "VIEWS:",
+        "VIEW TABLES:",
         "View all employees",
         "View all departments",
         "View all roles",
-        "ADD:",
+        "ADD TO A TABLE:",
         "Add an employee",
         "Add a department",
         "Add a role",
-        "OTHER:",
+        "OTHER ACTIONS:",
         "Update an employee role",
         "Quit"
       ],
@@ -189,55 +236,13 @@ async function mainChoices() {
   }
 };
 
-// edit a department
-async function deptPrompt() {
-  return inquirer
-    .prompt([
-    {
-      type: "list",
-      name: "choice",
-      message: "Please choose the task you want to do: ",
-      choices: [
-        "Add a department",
-        "Delete a department",
-        "Return to main menu"
-      ],
-    }
-  ])
-};
 
-// make main menu choice happen
-async function editDepartment() {
-  let quitLoop = false;
-  while (!quitLoop) {
-    const prompt = await deptPrompt();
-    switch (prompt.choice) {
-      case "Add a department": {
-        console.log("in switch add dept");
-        await addDept();
-        break;
-      }
-      case "Delete a department": {
-        await viewAllDepts();
-        console.log("in switch delete dept");
-        await deleteDept();
-        break;   
-      }  
-      case "Return to main menu": {
-        quitLoop = true;
-        // 0 is successful exit
-        process.exit(0);
-        return;
-      }
-      default:
-        console.log("Please choose a valid option");
-    }
-  }
-};
 
 //************************* */
 // OTHER FUNCTIONS
 //************************* */
+
+
 
 // confirm valid entries
 // async function validateEntry(input) {
@@ -252,12 +257,59 @@ async function editDepartment() {
 
 mainChoices();
 
-// add dept function not working - says column name can't be null, though putting in data
-// async function addDept(deptName) {
-//   const newDept = deptName.newDept;
+
+
+//add a department name to list of departments
+// async function addRole(roleInfo) {
+//   const deptId = await deptInfo.deptName;
 //   let query = "INSERT INTO department (name) VALUES (?)";
-//   let args = [newDept];
+//   let args = [deptName];
 //   const rows = await dbase.query(query, args);
-//   console.log(`${newDept} is successfully added as a department.`);
-//     //  mainChoices();
+//   console.log(`${deptName} is successfully added as a department.`);
+// };
+
+// // edit a department
+// async function deptPrompt() {
+//   return inquirer
+//     .prompt([
+//     {
+//       type: "list",
+//       name: "choice",
+//       message: "Please choose the task you want to do: ",
+//       choices: [
+//         "Add a department",
+//         "Delete a department",
+//         "Return to main menu"
+//       ],
+//     }
+//   ])
+// };
+
+// // make main menu choice happen
+// async function editDepartment() {
+//   let quitLoop = false;
+//   while (!quitLoop) {
+//     const prompt = await deptPrompt();
+//     switch (prompt.choice) {
+//       case "Add a department": {
+//         console.log("in switch add dept");
+//         await addDept();
+//         break;
+//       }
+//       case "Delete a department": {
+//         await viewAllDepts();
+//         console.log("in switch delete dept");
+//         await deleteDept();
+//         break;   
+//       }  
+//       case "Return to main menu": {
+//         quitLoop = true;
+//         // 0 is successful exit
+//         process.exit(0);
+//         return;
+//       }
+//       default:
+//         console.log("Please choose a valid option");
+//     }
+//   }
 // };
