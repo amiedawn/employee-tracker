@@ -84,9 +84,11 @@ async function pullDeptNames() {
   
   let departments = [];
   // loop to add new department name
-  for (i = 0; i < query.length; i++) {
-    departments.push(query.name);
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    departments.push(row.name);
   }
+  console.log("departments", departments);
   return departments;
 };
 
@@ -118,6 +120,7 @@ async function viewAllRoles() {
 async function getAddRoleData() {
   console.log("in add role table");
   const departments = await pullDeptNames();
+  console.log(departments);
   return inquirer
     .prompt([
       {
