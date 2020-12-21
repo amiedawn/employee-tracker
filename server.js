@@ -32,7 +32,7 @@ async function pullEmployees() {
 
   let employees = [];
   for (const employee of rows) {
-    employees.push(employee.first_name + "" + employee.last_name);
+    employees.push(employee.first_name + " " + employee.last_name);
   }
   return employees;
 };
@@ -45,7 +45,7 @@ async function pullManagers() {
 
   let managers = [];
   for (const employee of rows) {
-    managers.push(employee.first_name + "" + employee.last_name);
+    managers.push(employee.first_name + " " + employee.last_name);
   }
   return managers;
 };
@@ -82,6 +82,8 @@ async function pullRoles() {
   return roles;
 };
 
+
+
 //************************* */
 // EMPLOYEE QUERY FUNCTIONS
 //************************* */
@@ -92,13 +94,14 @@ async function viewAllEmps() {
   console.log("");
 
   //***/ add in manager that the emp reports to
-  //let query = "SELECT employee.id AS ID, employee.first_name AS First_Name, employee.last_name AS Last_Name, empRole.title AS Title, department.name AS Department, empRole.salary AS Salary FROM employee CONCAT(m.first_name, ' ', m.last_name) AS Manager FROM employee LEFT JOIN employee manager ON employee.manager_id = manager.id INNER JOIN empRole ON employee.role_id = empRole.id INNER JOIN department ON empRole.department_id = department.id";
-  let query =
-    "SELECT employee.id, employee.first_name, employee.last_name, empRole.title, department.name AS department, empRole.salary AS salary, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee INNER JOIN empRole on empRole.id = employee.role_id INNER JOIN department on department.id = empRole.department_id LEFT JOIN employee e on employee.manager_id = e.id";
+  //let managers = await dbase.query("SELECT id, CONCAT(first_name, ' ', last_name) AS manager FROM employee");
+  //let query = "SELECT employee.id, employee.first_name, employee.last_name, empRole.title AS title, department.name AS department, empRole.salary AS salary, managers FROM employee LEFT JOIN employee ON employee manager_id = manager.id INNER JOIN empRole ON employee.role_id = empRole.id INNER JOIN department ON empRole.department_id = department.id";
+  // this includes salary, but not manager
+  let query = "SELECT employee.id, employee.first_name, employee.last_name, empRole.title, department.name AS department, empRole.salary AS salary, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee INNER JOIN empRole on empRole.id = employee.role_id INNER JOIN department on department.id = empRole.department_id LEFT JOIN employee e on employee.manager_id = e.id";
   console.log("in employee table");
   const rows = await dbase.query(query);
   console.table(rows);
-}
+};
 
 // get new emp fname, lname, role, mgr for adding
 // employee choices will autofill from pullEmpNames function
@@ -108,49 +111,49 @@ async function getAddEmpData() {
   console.log(roles);
   const managers = await pullManagers();
   console.log(managers);
-  return inquirer.prompt([
-    {
-      name: "fName",
-      type: "input",
-      message:
-        "Please enter the first name of the employee you would like to add: ",
-    },
-    {
-      name: "lName",
-      type: "input",
-      message:
-        "Please enter the last name of the employee you would like to add: ",
-    },
-    {
-      name: "eRole",
-      type: "list",
-      message: "Please choose this employee's role: ",
-      choices: [...roles],
-    },
-    {
-      name: "mgr",
-      type: "list",
-      message: "Please select this employee's manager: ",
-      choices: [...managers],
-    },
-  ]);
+  return inquirer
+    .prompt([
+      {
+        name: "fName",
+        type: "input",
+        message:
+          "Please enter the first name of the employee you would like to add: ",
+      },
+      {
+        name: "lName",
+        type: "input",
+        message:
+          "Please enter the last name of the employee you would like to add: ",
+      },
+      {
+        name: "eRole",
+        type: "list",
+        message: "Please choose this employee's role: ",
+        choices: [...roles],
+      },
+      {
+        name: "mgr",
+        type: "list",
+        message: "Please select this employee's manager: ",
+        choices: [...managers],
+      },
+    ]);
 };
 
-async function addEmp(empInfo) {
+async function addEmp(newEmp) {
   // user enters role name, but need role_id
-  let roleId = await convertRoleId(empInfo.role);
+  let roleId = await convertRoleId(newEmp);
   console.log("got roleId");
   // user enters manager name, but need manager_id
-  let mgrId = await convertDeptId(empInfo.manager);
+  let mgrId = await convertDeptId(newEmp);
   console.log("got mgrId");
   let query =
     "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
   console.log("query", query);
-  let args = [empInfo.first_name, empInfo.last_name, roleId, mgrId];
-  console.log("args", args);
+  
   const rows = await dbase.query(query, args);
   console.log(
-    `${empInfo.first_name} ${empInfo.last_name} is successfully added as an employee.`
+    `${newEmp.first_name} ${newEmp.last_name} is successfully added as an employee.`
   );
 };
 
@@ -200,14 +203,15 @@ async function viewAllDepts() {
 // get new department name for adding
 async function getAddDeptData() {
   console.log("in add dept table");
-  return inquirer.prompt([
-    {
-      name: "deptName",
-      type: "input",
-      message:
-        "Please enter the name of the department you would like to add: ",
-    },
-  ]);
+  return inquirer
+    .prompt([
+      {
+        name: "deptName",
+        type: "input",
+        message:
+          "Please enter the name of the department you would like to add: ",
+      },
+    ]);
 };
 
 // convert department name to department_id
@@ -251,24 +255,49 @@ async function getAddRoleData() {
   console.log("in add role table");
   const departments = await pullDeptNames();
   console.log(departments);
-  return inquirer.prompt([
+  return inquirer 
+    .prompt([
+      {
+        name: "roleName",
+        type: "input",
+        message: "Please enter the name of the role you would like to add: ",
+      },
+      {
+        name: "roleSalary",
+        type: "input",
+        message: "Please enter the salary for the role you would like to add: ",
+      },
+      {
+        name: "roleDept",
+        type: "list",
+        message: "Please choose a department who uses this role: ",
+        choices: [...departments],
+      },
+    ]);
+};
+
+async function getUpdtRoleData() {
+  const employees = await pullEmployees();
+  const roles = await pullRoles();
+  return inquirer
+  .prompt([
     {
-      name: "roleName",
-      type: "input",
-      message: "Please enter the name of the role you would like to add: ",
-    },
-    {
-      name: "roleSalary",
-      type: "input",
-      message: "Please enter the salary for the role you would like to add: ",
-    },
-    {
-      name: "roleDept",
+      name: "empName",
       type: "list",
-      message: "Please choose a department who uses this role: ",
-      choices: [...departments],
+      message: "Please choose the employee you would like to update: ",
+      choices: [
+        ...employees
+      ]
     },
-  ]);
+    {
+      name: "newRole",
+      type: "list",
+      message: "Please choose the new role for this employee: ",
+      choices: [
+        ...roles
+      ]
+    }  
+  ])
 };
 
 async function addRole(roleInfo) {
@@ -279,7 +308,7 @@ async function addRole(roleInfo) {
   const title = roleInfo.roleName;
   console.log("got role title");
   let query =
-    "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)";
+    "INSERT INTO empRole (title, salary, department_id) VALUES (?,?,?)";
   console.log("query", query);
   let args = [title, salary, deptId];
   console.log("args", args);
@@ -288,11 +317,25 @@ async function addRole(roleInfo) {
 };
 
 // convert role name to role_id
-async function convertRoleId(roleName) {
-  let query = "SELECT * FROM empRole WHERE empRole.title=?";
-  let args = [roleName];
+async function convertRoleId(newEmp) {
+ // let query = "SELECT * FROM empRole WHERE title=?";
+  let query = "SELECT * FROM empRole";
+  console.log("query", query);
+  let args = [newEmp.title];
+  console.log("args", args);
   const rows = await dbase.query(query, args);
+  console.log("*rows", rows);
   return rows[0].id;
+};
+
+async function updtRoleData(empInfo) {
+  const roleId = await convertRoleId(empInfo.role);
+  const employee = await separateFLName(empInfo.managers);
+
+  let query = 'UPDATE employee SET role_id=? WHERE employee.first_name=? and employee.last_name=?';
+  let args = [roleId, employee[0], employee[1]];
+  const rows = await dbase.query(query, args);
+  console.log(`${employee[0]} ${employee[1]} has been updated to a new role of ${empInfo.role}`); 
 };
 
 // let managers = [];
@@ -373,7 +416,7 @@ while (!quitLoop) {
     }
     case "Update an employee role": {
       const emp = await getUpdtRoleData();
-      console.log("Update an employee role", newRole);
+      console.log("Update an employee role", emp);
       await updtRoleData(emp);
       break;
     }
