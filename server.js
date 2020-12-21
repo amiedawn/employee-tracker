@@ -87,20 +87,10 @@ async function pullRoles() {
 
 // view all employees
 async function viewAllEmps() {
-  console.log("in view all emps table");
   console.log("");
-
-  //***/ add in manager that the emp reports to
-  //let managers = await dbase.query("SELECT id, CONCAT(first_name, ' ', last_name) AS manager FROM employee");
-  //let query = "SELECT employee.id, employee.first_name, employee.last_name, empRole.title AS title, department.name AS department, empRole.salary AS salary, managers FROM employee LEFT JOIN employee ON employee manager_id = manager.id INNER JOIN empRole ON employee.role_id = empRole.id INNER JOIN department ON empRole.department_id = department.id";
-  // this includes salary, but not manager
+  
   // use this one
-  let query =
-    //"SELECT employee.id, employee.first_name, employee.last_name, empRole.title, department.name AS department, empRole.salary AS salary, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee INNER JOIN empRole on employee.role_id = empRole.id INNER JOIN department on empRole.department_id = department.id LEFT JOIN employee e on employee.manager_id = e.id";
-  // works except manager
-  //let query =
-   // "SELECT employee.id, employee.first_name, employee.last_name, empRole.title, department.name AS department, empRole.salary AS salary, CONCAT(employee.first_name, ' ', employee.last_name) AS manager FROM employee INNER JOIN empRole on empRole.id = employee.role_id INNER JOIN department on department.id = empRole.department_id LEFT JOIN employee e on employee.manager_id = e.id";
-    "SELECT e.id, e.first_name AS First_Name, e.last_name AS Last_Name, title AS Title, salary AS Salary, name AS Department, CONCAT(m.first_name, ' ', m.last_name) AS Manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN empRole r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id";
+  let query = "SELECT e.id, e.first_name, e.last_name, title, salary, name AS department, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN empRole r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id";
   console.log("in employee table");
   const rows = await dbase.query(query);
   console.table(rows);

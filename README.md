@@ -14,15 +14,14 @@
 
 ## Description: 
 
-This application is a command-line application that manages a company's employee database, using Node.js, Inquirer, and MySQL. 
-
+This application is a command-line application that manages a company's employee database, using Node.js, inquirer, Console.table, and MySQL2. 
 ## Installation Instructions:
 
-You will need to install Node.js, npm, express, fs, and uuid before running this application. Clone the repository at https://github.com/amiedawn/note-taker . Then install the Node.js and the other necessary packages. Finally run the application in the terminal by typing “node start” and opening "localhost:3001" in the web browser.
+You will need to install Node.js, npm, inquirer, console.table, and MySQL2 before running this application. Clone the repository at https://github.com/amiedawn/employee-tracker . Then install the Node.js and the other necessary packages. Finally run the application in the terminal by typing “node start”.
 
 ## Usage Information:
 
-Navigate to https://amiedawn-express-note-taker.herokuapp.com .<br><br>After clicking "Get Started" on the introductory screen, you will be able to enter individual notes and when you save each one, the titles will appear in a list on the left side of the screen:  ![Screenshot](/public/assets/notes.png)<br><br>If you would like to see the content of a particular note, simply click on the title in the list, and the title and text of the note will show on the right side of the screen: ![Screenshot](/public/assets/show-note.png) .<br><br>If you would like to enter a new note again, refresh the browser and click on the pencil icon in the top-right corner.
+Follow the installation instructions.<br><br>Upon starting the application, a user can view all employees, roles, and departments in the company. The user can also add a department or role. Future development will allow a user to add an employee and update the employee role. Here is a screenshot of the main menu which appears after each main action is complete: ![Screenshot](employee-tracker.png)<br><br>You may also visit to watch a video walk-through of the application: https://drive.google.com/file/d/1UCyg6GDh9Qk1cVOPjOhi-hKkatOuLYis/view .
 
 ## License:
 
@@ -32,7 +31,7 @@ For details on this license, please follow: https://opensource.org/licenses/MIT
 
 ## Tests:
 
-Testing was performed on the api routes using Insomnia Core.
+Unit testing was performed on each query using MySQL2.
 
 ## Questions?
 
