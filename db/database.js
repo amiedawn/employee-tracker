@@ -1,11 +1,16 @@
 // create the connection to database
 const mysql = require("mysql2");
 
+const connection = require('./connection');
+
 //constructor function
 class Database {
-  constructor(config) {
-    this.connection = mysql.createConnection(config);
+  constructor(connection) {
+    this.connection = mysql.createConnection(connection);
   }
+  
+   
+  
 
   query(sql, args) {
     return new Promise((resolve, reject) => {

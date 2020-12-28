@@ -107,25 +107,25 @@ async function getAddEmpData() {
   return inquirer
     .prompt([
       {
-        name: "fName",
+        name: "first_name",
         type: "input",
         message:
           "Please enter the first name of the employee you would like to add: ",
       },
       {
-        name: "lName",
+        name: "last_name",
         type: "input",
         message:
           "Please enter the last name of the employee you would like to add: ",
       },
       {
-        name: "eRole",
+        name: "role_id",
         type: "list",
         message: "Please choose this employee's role: ",
         choices: [...roles],
       },
       {
-        name: "mgr",
+        name: "manager_id",
         type: "list",
         message: "Please select this employee's manager: ",
         choices: [...managers],
@@ -135,20 +135,34 @@ async function getAddEmpData() {
 
 // add a new employee
 async function addEmp(newEmp) {
+  let firstName = newEmp.first_name;
+  let lastName = newEmp.last_name;
   // user enters role name, but need role_id
   let roleId = await convertRoleId(newEmp);
   console.log("got roleId");
   // user enters manager name, but need manager_id
-  let mgrId = await convertDeptId(newEmp);
+  let mgrId = await convertManagerId(newEmp);
   console.log("got mgrId");
   let query =
-    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
+     "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
   console.log("query", query);
-  
+  let args = [firstName, lastName, roleId, mgrId];
   const rows = await dbase.query(query, args);
   console.log(
     `${newEmp.first_name} ${newEmp.last_name} is successfully added as an employee.`
   );
+};
+
+// convert manager name to manager_id
+async function convertManagerId(newEmp) {
+  // let query = "SELECT * FROM empRole WHERE title=?";
+  let query = "SELECT * FROM employee";
+  console.log("query", query);
+  let args = [newEmp.title];
+  console.log("args", args);
+  const rows = await dbase.query(query, args);
+  console.log("*rows", rows);
+  return rows[0].id;
 };
 
 // get employee.id of a manager
