@@ -40,20 +40,20 @@ async function pullEmployees() {
 async function pullManagers() {
   let query = "SELECT * FROM employee WHERE manager_id IS NULL";
   const rows = await dbase.query(query);
-  console.log("Number of rows returned: ", rows.length);
+  //console.log("Number of rows returned: ", rows.length);
 
-  let managers = [];
+  let employees = [];
   for (const employee of rows) {
-    managers.push(employee.first_name + " " + employee.last_name);
+    employees.push(employee.first_name + " " + employee.last_name);
   };
-  return managers;
+  return employees;
 };
 
 // get current list of dept names 
 async function pullDeptNames() {
   let query = "SELECT name FROM department";
   const rows = await dbase.query(query);
-  console.log("Number of rows returned: ", rows.length);
+  //console.log("Number of rows returned: ", rows.length);
   
   let departments = [];
   // loop to add new department name
@@ -61,7 +61,7 @@ async function pullDeptNames() {
     const row = rows[i];
     departments.push(row.name);
   }
-  console.log("departments", departments);
+  //console.log("departments", departments);
   return departments;
 };
 
@@ -69,7 +69,7 @@ async function pullDeptNames() {
 async function pullRoles() {
   let query = "SELECT title FROM empRole";
   const rows = await dbase.query(query);
-  console.log("Number of rows returned: ", rows.length);
+ // console.log("Number of rows returned: ", rows.length);
   
   let roles = [];
   // loop to add new employee role
@@ -77,7 +77,7 @@ async function pullRoles() {
     const row = rows[i];
     roles.push(row.title);
   }
-  console.log(roles);
+ // console.log(roles);
   return roles;
 };
 
@@ -119,13 +119,13 @@ async function getAddEmpData() {
           "Please enter the last name of the employee you would like to add: ",
       },
       {
-        name: "role_id",
+        name: "role",
         type: "list",
         message: "Please choose this employee's role: ",
         choices: [...roles],
       },
       {
-        name: "manager_id",
+        name: "manager",
         type: "list",
         message: "Please select this employee's manager: ",
         choices: [...managers],
@@ -138,10 +138,10 @@ async function addEmp(newEmp) {
   let firstName = newEmp.first_name;
   let lastName = newEmp.last_name;
   // user enters role name, but need role_id
-  let roleId = await convertRoleId(newEmp);
+  let roleId = await convertRoleId(newEmp.role);
   console.log("got roleId");
   // user enters manager name, but need manager_id
-  let mgrId = await convertManagerId(newEmp);
+  let mgrId = await convertEmpId(newEmp.manager);
   console.log("got mgrId");
   let query =
      "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
@@ -154,39 +154,46 @@ async function addEmp(newEmp) {
 };
 
 // convert manager name to manager_id
-async function convertManagerId(newEmp) {
-  // let query = "SELECT * FROM empRole WHERE title=?";
-  let query = "SELECT * FROM employee";
-  console.log("query", query);
-  let args = [newEmp.title];
-  console.log("args", args);
-  const rows = await dbase.query(query, args);
-  console.log("*rows", rows);
-  return rows[0].id;
-};
+// async function convertManagerId(newEmp) {
+//   let query = "SELECT * FROM employee WHERE first_name=? AND last_name=?";
+//   //let query = "SELECT * FROM employee";
+//   console.log("query", query);
+//   let args = [newEmp.first_name, newEmp.last_name];
+//   console.log("args", args);
+//   const rows = await dbase.query(query, args);
+//   console.log("**rows", rows);
+//   return rows[0].id;
+// };
 
 // get employee.id of a manager
 // destructure full name to first and last name
-async function getEmpId(fullName) {
+async function convertEmpId(fullName) {
   let emp = separateFLName(fullName);
   let query =
-    "SELECT id FROM employee WHERE employee.first_name=? and employee.last_name=?";
+    "SELECT id FROM employee WHERE employee.first_name=? AND employee.last_name=?";
   let args = [emp[0], emp[1]];
+  console.log("emp", emp);
+  console.log("emp[0]", emp[0]);
+  console.log("emp[1]", emp[1]);
   const rows = await dbase.query(query, args);
   console.log("destructure full name to first and last name works");
   return rows[0].id;
 };
 
 // returns an array of only first_name and last_name
-async function separateFLName(fullName) {
-  let emp = fullName.split("");
+// **cannot be an async function
+function separateFLName(fullName) {
+  // typical first and last name
+  let emp = fullName.split(" ");
   if (emp.length == 2) {
     return emp;
   }
+
+  // in case first name is 2 words
   const last_name = emp[emp.length - 1];
-  let first_name = "";
+  let first_name = " ";
   for (let i = 0; i < emp.length - 1; i++) {
-    first_Name = first_Name + emp[i] + "";
+    first_name = first_name + emp[i] + " ";
   }
   return [first_name.trim(), last_name];
 };
@@ -299,11 +306,11 @@ async function getUpdtRoleData() {
 };
 
 // convert role name to role_id
-async function convertRoleId(newEmp) {
-  // let query = "SELECT * FROM empRole WHERE title=?";
-  let query = "SELECT * FROM empRole";
+async function convertRoleId(roleName) {
+  let query = "SELECT * FROM empRole WHERE empRole.title=?";
+  //let query = "SELECT * FROM empRole";
   console.log("query", query);
-  let args = [newEmp.title];
+  let args = [roleName];
   console.log("args", args);
   const rows = await dbase.query(query, args);
   console.log("*rows", rows);
