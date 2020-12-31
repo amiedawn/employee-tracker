@@ -96,6 +96,33 @@ async function viewAllEmps() {
   console.table(rows);
 };
 
+// get manager info to view employees
+async function getViewEmpMgr() {
+  const managers = await pullManagers();
+  console.log(managers);
+  return inquirer
+    .prompt([
+      {
+        name: "mgrName",
+        type: "list",
+        message: "Please choose which manager whose employees you would like to view.",
+        choices: [
+          ...managers
+        ]
+      }
+    ])
+    .then (res => convertEmpId(res.mgrName));
+};
+
+// view employees my manager
+async function viewEmpByMgr(mgrId) {
+  console.log("mgrId", mgrId);
+  let query = "SELECT * FROM employee WHERE employee.manager_id=?"
+   console.log("in employee table");
+  const rows = await dbase.query(query, mgrId);
+  console.table(rows);
+};
+
 // get new emp fname, lname, role, mgr for adding
 // employee choices will autofill from pullEmpNames function
 async function getAddEmpData() {
@@ -405,6 +432,11 @@ while (!quitLoop) {
     case "View all employees": {
     //console.log("in switch view all emps");
       await viewAllEmps();
+      break;
+    }
+    case "View employees by manager": {
+      const mgr = await getViewEmpMgr();
+      await viewEmpByMgr(mgr);
       break;
     }
     case "View all departments": {
