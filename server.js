@@ -153,18 +153,6 @@ async function addEmp(newEmp) {
   );
 };
 
-// convert manager name to manager_id
-// async function convertManagerId(newEmp) {
-//   let query = "SELECT * FROM employee WHERE first_name=? AND last_name=?";
-//   //let query = "SELECT * FROM employee";
-//   console.log("query", query);
-//   let args = [newEmp.first_name, newEmp.last_name];
-//   console.log("args", args);
-//   const rows = await dbase.query(query, args);
-//   console.log("**rows", rows);
-//   return rows[0].id;
-// };
-
 // get employee.id of a manager
 // destructure full name to first and last name
 async function convertEmpId(fullName) {
@@ -335,14 +323,17 @@ async function addRole(roleInfo) {
 };
 
 // update an employee's role
-async function updtRoleData(empInfo) {
-  const roleId = await convertRoleId(empInfo.role);
-  const employee = await separateFLName(empInfo.managers);
+async function updtRoleData(newEmp) {
+  const roleId = await convertRoleId(newEmp.newRole);
+  const emp = separateFLName(newEmp.empName);
 
   let query = 'UPDATE employee SET role_id=? WHERE employee.first_name=? and employee.last_name=?';
-  let args = [roleId, employee[0], employee[1]];
+  let args = [roleId, emp[0], emp[1]];
+  console.log("roleId", roleId);
+  console.log("emp[0]", emp[0]);
+  console.log("emp[1]", emp[1]);
   const rows = await dbase.query(query, args);
-  console.log(`${employee[0]} ${employee[1]} has been updated to a new role of ${empInfo.role}`); 
+  console.log(`The record for ${emp[0]} ${emp[1]} has been updated to a new role of ${newEmp.newRole}`); 
 };
 
 //************************* */
