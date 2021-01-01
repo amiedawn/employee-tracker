@@ -27,8 +27,7 @@ const dbase = new Database({
 async function pullEmployees() {
   let query = "SELECT * FROM employee";
   const rows = await dbase.query(query);
-  console.log("Number of rows returned: ", rows.length);
-
+  
   let employees = [];
   for (const employee of rows) {
     employees.push(employee.first_name + " " + employee.last_name);
@@ -40,8 +39,7 @@ async function pullEmployees() {
 async function pullManagers() {
   let query = "SELECT * FROM employee WHERE manager_id IS NULL";
   const rows = await dbase.query(query);
-  //console.log("Number of rows returned: ", rows.length);
-
+  
   let employees = [];
   for (const employee of rows) {
     employees.push(employee.first_name + " " + employee.last_name);
@@ -53,15 +51,13 @@ async function pullManagers() {
 async function pullDeptNames() {
   let query = "SELECT name FROM department";
   const rows = await dbase.query(query);
-  //console.log("Number of rows returned: ", rows.length);
-  
+    
   let departments = [];
   // loop to add new department name
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     departments.push(row.name);
   }
-  //console.log("departments", departments);
   return departments;
 };
 
@@ -69,15 +65,13 @@ async function pullDeptNames() {
 async function pullRoles() {
   let query = "SELECT title FROM empRole";
   const rows = await dbase.query(query);
- // console.log("Number of rows returned: ", rows.length);
-  
+   
   let roles = [];
   // loop to add new employee role
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     roles.push(row.title);
   }
- // console.log(roles);
   return roles;
 };
 
@@ -87,11 +81,7 @@ async function pullRoles() {
 
 // view all employees
 async function viewAllEmps() {
-  console.log("");
-  
-  // use this one
   let query = "SELECT e.id, e.first_name, e.last_name, title, salary, name AS department, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN empRole r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id";
-  console.log("in employee table");
   const rows = await dbase.query(query);
   console.table(rows);
 };
@@ -99,7 +89,6 @@ async function viewAllEmps() {
 // get manager info to view employees
 async function getViewEmpMgr() {
   const managers = await pullManagers();
-  console.log(managers);
   return inquirer
     .prompt([
       {
@@ -116,9 +105,7 @@ async function getViewEmpMgr() {
 
 // view employees by manager
 async function viewEmpByMgr(mgrId) {
-  console.log("mgrId", mgrId);
   let query = "SELECT * FROM employee WHERE employee.manager_id=?"
-   console.log("in employee table");
   const rows = await dbase.query(query, mgrId);
   console.table(rows);
 };
@@ -126,7 +113,6 @@ async function viewEmpByMgr(mgrId) {
 // get department info to view employees
 async function getViewEmpDept() {
   const departments = await pullDeptNames();
-  console.log(departments);
   return inquirer
     .prompt([
       {
@@ -143,10 +129,8 @@ async function getViewEmpDept() {
 
 // view employees by manager
 async function viewEmpByDept(deptId) {
-  console.log("deptId", deptId);
   let query =
     "SELECT e.id, e.first_name, e.last_name, title, salary, name AS department, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN empRole r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id WHERE r.department_id=?";
-   console.log("in department table");
   const rows = await dbase.query(query, deptId);
   console.table(rows);
 };
@@ -154,11 +138,8 @@ async function viewEmpByDept(deptId) {
 // get new emp fname, lname, role, mgr for adding
 // employee choices will autofill from pullEmpNames function
 async function getAddEmpData() {
-  //console.log("in add employee table");
   const roles = await pullRoles();
-  //console.log(roles);
   const managers = await pullManagers();
-  //console.log(managers);
   return inquirer
     .prompt([
       {
@@ -194,13 +175,10 @@ async function addEmp(newEmp) {
   let lastName = newEmp.last_name;
   // user enters role name, but need role_id
   let roleId = await convertRoleId(newEmp.role);
-  console.log("got roleId");
   // user enters manager name, but need manager_id
   let mgrId = await convertEmpId(newEmp.manager);
-  console.log("got mgrId");
   let query =
      "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)";
-  console.log("query", query);
   let args = [firstName, lastName, roleId, mgrId];
   const rows = await dbase.query(query, args);
   console.log(
@@ -215,11 +193,7 @@ async function convertEmpId(fullName) {
   let query =
     "SELECT id FROM employee WHERE employee.first_name=? AND employee.last_name=?";
   let args = [emp[0], emp[1]];
-  console.log("emp", emp);
-  console.log("emp[0]", emp[0]);
-  console.log("emp[1]", emp[1]);
   const rows = await dbase.query(query, args);
-  console.log("destructure full name to first and last name works");
   return rows[0].id;
 };
 
@@ -271,8 +245,6 @@ async function delEmp(empInfo) {
 
 // view all departments
 async function viewAllDepts() {
-  console.log("");
-
   let query = "SELECT id AS ID, name AS Department FROM department";
   const rows = await dbase.query(query);
   console.table(rows);
@@ -337,8 +309,6 @@ async function delDept(deptInfo) {
 
 // view all roles
 async function viewAllRoles() {
-  console.log("");
-
   let query =
     "SELECT empRole.id, empRole.title, department.name AS department, empRole.salary FROM empRole LEFT JOIN department on empRole.department_id = department.id";
   const rows = await dbase.query(query);
@@ -373,16 +343,11 @@ async function getAddRoleData() {
 // add a record to list of roles
 async function addRole(roleInfo) {
   const deptId = await convertDeptId(roleInfo.roleDept);
-  console.log("got role deptId");
   const salary = roleInfo.roleSalary;
-  console.log("got role salary");
   const title = roleInfo.roleName;
-  console.log("got role title");
   let query =
     "INSERT INTO empRole (title, salary, department_id) VALUES (?,?,?)";
-  console.log("query", query);
   let args = [title, salary, deptId];
-  console.log("args", args);
   const rows = await dbase.query(query, args);
   console.log(`${title} is successfully added as a role.`);
 };
@@ -390,12 +355,8 @@ async function addRole(roleInfo) {
 // convert role name to role_id
 async function convertRoleId(roleName) {
   let query = "SELECT * FROM empRole WHERE empRole.title=?";
-  //let query = "SELECT * FROM empRole";
-  console.log("query", query);
   let args = [roleName];
-  console.log("args", args);
   const rows = await dbase.query(query, args);
-  console.log("*rows", rows);
   return rows[0].id;
 };
 
@@ -431,9 +392,6 @@ async function updtRoleData(newEmp) {
 
   let query = 'UPDATE employee SET role_id=? WHERE employee.first_name=? and employee.last_name=?';
   let args = [roleId, emp[0], emp[1]];
-  console.log("roleId", roleId);
-  console.log("emp[0]", emp[0]);
-  console.log("emp[1]", emp[1]);
   const rows = await dbase.query(query, args);
   console.log(`The record for ${emp[0]} ${emp[1]} has been updated to a new role of ${newEmp.newRole}`); 
 };
@@ -480,14 +438,12 @@ return inquirer
       "View employees by department",
       "View all departments",
       "View all roles",
-      "View total salaries of a department",
       "ADD TO A TABLE:",
       "Add an employee",
       "Add a department",
       "Add a role",
       "OTHER ACTIONS:",
       "Update an employee role",
-      "Update employee managers",
       "Delete an employee",
       "Delete a department",
       "Delete a role",
@@ -504,7 +460,6 @@ while (!quitLoop) {
   const prompt = await showPrompts();
   switch (prompt.choice) {
     case "View all employees": {
-    //console.log("in switch view all emps");
       await viewAllEmps();
       break;
     }
@@ -528,43 +483,36 @@ while (!quitLoop) {
     }
     case "Add an employee": {
       const newEmp = await getAddEmpData();
-    //  console.log("Add a new employee", newEmp);
       await addEmp(newEmp);
       break;
     }
     case "Add a department": {
       const newDept = await getAddDeptData();
-    //  console.log("Add a new department", newDept);
       await addDept(newDept);
       break;
     }
     case "Add a role": {
       const newRole = await getAddRoleData();
-    //  console.log("Add a new role", newRole);
       await addRole(newRole);
       break;
     }
     case "Update an employee role": {
       const emp = await getUpdtRoleData();
-      console.log("Update an employee role", emp);
       await updtRoleData(emp);
       break;
     }
     case "Delete an employee": {
       const emp = await getDelEmpData();
-      console.log("Delete an employee", emp);
       await delEmp(emp);
       break;
     }
     case "Delete a department": {
       const dept = await getDelDeptData();
-      console.log("Delete a department", dept);
       await delDept(dept);
       break;
     }
     case "Delete a role": {
       const role = await getDelRoleData();
-      console.log("Delete an employee role", role);
       await delRole(role);
       break;
     }
