@@ -410,6 +410,29 @@ async function updtRoleData(newEmp) {
   console.log(`The record for ${emp[0]} ${emp[1]} has been updated to a new role of ${newEmp.newRole}`); 
 };
 
+async function getDelRoleData() {
+  const roles = await pullRoles();
+  return inquirer
+    .prompt ([
+      {
+        name: "roleName",
+        type: "list",
+        message: "Please choose the employee role that you would like to delete from the database.",
+        choices: [
+          ...roles
+        ]
+      }
+    ])
+};
+
+async function delRole(roleInfo) {
+  const role = roleInfo.roleName;
+  let query = "DELETE FROM empRole WHERE empRole.title=?"
+  let args = [role];
+  const rows = await dbase.query(query, args);
+  console.log (`${ role } has been removed from the database.`);
+};
+
 //************************* */
 // MAIN MENU FUNCTIONS
 //************************* */
@@ -504,6 +527,12 @@ while (!quitLoop) {
       const dept = await getDelDeptData();
       console.log("Delete a department", dept);
       await delDept(dept);
+      break;
+    }
+    case "Delete a role": {
+      const role = await getDelRoleData();
+      console.log("Delete an employee role", role);
+      await delRole(role);
       break;
     }
     case "Quit": {
