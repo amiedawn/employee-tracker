@@ -114,12 +114,40 @@ async function getViewEmpMgr() {
     .then (res => convertEmpId(res.mgrName));
 };
 
-// view employees my manager
+// view employees by manager
 async function viewEmpByMgr(mgrId) {
   console.log("mgrId", mgrId);
   let query = "SELECT * FROM employee WHERE employee.manager_id=?"
    console.log("in employee table");
   const rows = await dbase.query(query, mgrId);
+  console.table(rows);
+};
+
+// get department info to view employees
+async function getViewEmpDept() {
+  const departments = await pullDeptNames();
+  console.log(departments);
+  return inquirer
+    .prompt([
+      {
+        name: "deptName",
+        type: "list",
+        message: "In which department would you like to view its employees?",
+        choices: [
+          ...departments
+        ]
+      }
+    ])
+    .then (res => convertDeptId(res.deptName));
+};
+
+// view employees by manager
+async function viewEmpByDept(deptId) {
+  console.log("deptId", deptId);
+  let query =
+    "SELECT e.id, e.first_name, e.last_name, title, salary, name AS department, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee e LEFT JOIN employee m ON e.manager_id = m.id INNER JOIN empRole r ON e.role_id = r.id INNER JOIN department d ON r.department_id = d.id WHERE r.department_id=?";
+   console.log("in department table");
+  const rows = await dbase.query(query, deptId);
   console.table(rows);
 };
 
@@ -484,6 +512,11 @@ while (!quitLoop) {
       const mgr = await getViewEmpMgr();
       await viewEmpByMgr(mgr);
       break;
+    }
+    case "View employees by department": {
+      const dept = await getViewEmpDept();
+      await viewEmpByDept(dept);
+      break;      
     }
     case "View all departments": {
       await viewAllDepts();
