@@ -210,7 +210,7 @@ function separateFLName(fullName) {
   for (let i = 0; i < emp.length - 1; i++) {
     first_name = first_name + emp[i] + " ";
   }
-  return [first_name.trim(), last_name];
+  return [first_name.trim() + " " + last_name];
 };
 
 async function getDelEmpData() {
@@ -234,7 +234,7 @@ async function delEmp(empInfo) {
   let query = "DELETE FROM employee WHERE first_name=? AND last_name=?";
   let args = [emp[0], emp[1]];
   const rows = await dbase.query(query, args);
-  console.log("${ emp[0] } ${ emp[1] } has been removed from the database.");
+  console.log(`${ empInfo.empName } has been removed from the database.`);
 };
 
 //************************* */
@@ -278,6 +278,29 @@ async function convertDeptId(deptName) {
   let args = [deptName];
   const rows = await dbase.query(query, args);
   return rows[0].id;
+};
+
+async function getDelDeptData() {
+  const departments = await pullDeptNames();
+  return inquirer
+    .prompt ([
+      {
+        name: "deptName",
+        type: "list",
+        message: "Please choose the department you would like to delete from the database.",
+        choices: [
+          ...departments
+        ]
+      }
+    ])
+};
+
+async function delDept(deptInfo) {
+  const dept = deptInfo.deptName;
+  let query = "DELETE FROM department WHERE department.name=?";
+  let args = [dept];
+  const rows = await dbase.query(query, args);
+  console.log(`${ deptInfo.deptName } has been removed from the database.`);
 };
 
 //************************* */
@@ -475,6 +498,12 @@ while (!quitLoop) {
       const emp = await getDelEmpData();
       console.log("Delete an employee", emp);
       await delEmp(emp);
+      break;
+    }
+    case "Delete a department": {
+      const dept = await getDelDeptData();
+      console.log("Delete a department", dept);
+      await delDept(dept);
       break;
     }
     case "Quit": {
